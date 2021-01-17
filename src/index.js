@@ -1,7 +1,19 @@
-// Se debe almacenar la URL del JSON que se quiere recuperar en una variable
 import "./style.css"
-const requestURL = 'https://api-prod.kokorokids.app/games/';
+import gameRepository from "./repositories/gamesRepository";
 let globalGames;
+
+async function getGames() {
+    const games = await gameRepository.get();
+    globalGames = games;
+    games.forEach(game => {
+        console.log(game.title);
+    })
+   
+}
+getGames();
+
+const requestURL = 'https://api-prod.kokorokids.app/games/';
+let selectedGame;
 
 const request = new XMLHttpRequest();
 request.open('GET', requestURL);
@@ -24,12 +36,16 @@ function showGames(jsonObj) {
 
 
   for (var i = 0; i < games.length; i++) {
+    const game = games[i];
     const item = document.createElement('div');
     item.setAttribute("class", "item");
     const myH2 = document.createElement('h2');
 
-    myH2.textContent = games[i].title;
-    item.setAttribute("onclick", "showDetails(" + i + ")");
+    myH2.textContent = game.title;
+    item.addEventListener("click", function() {
+      selectedGame = game;
+      showDetails();
+    });
 
     item.appendChild(myH2);
     container.appendChild(item);
@@ -37,13 +53,13 @@ function showGames(jsonObj) {
 
 }
 
-function showDetails(id) {
+function showDetails() {
 
   //Create overlay div
   const overlay = document.createElement('div');
   overlay.setAttribute("id", "overlay");
   overlay.setAttribute("class", "overlay");
-  overlay.setAttribute("onclick", "closeModal()");
+  overlay.addEventListener("click", closeModal)
   document.body.appendChild(overlay);
 
   //Create popup
@@ -56,18 +72,18 @@ function showDetails(id) {
   //Getting title, description, etc
   const myH2 = document.createElement('h1');
 
-  myH2.textContent = globalGames[id].title;
-  myPara1.textContent = globalGames[id].description;
+  myH2.textContent = selectedGame.title;
+  myPara1.textContent = selectedGame.description;
   modal.appendChild(myH2);
   modal.appendChild(myPara1);
 
   //Getting categories 
-  const categories = globalGames[id].categories;
+  const categories = selectedGame.categories;
   const listItem = document.createElement('p');
   listItem.textContent += "Categories: ";
 
   for (var j = 0; j < categories.length; j++) {
-      string = categories[j].name;
+      let string = categories[j].name;
       string = string.replace('_',' ');
     
     listItem.textContent += "/"+string+"/ ";
@@ -86,8 +102,6 @@ function closeModal() {
   const modal = document.getElementById("modal");
   overlay.parentNode.removeChild(overlay);
   modal.parentNode.removeChild(modal);
-
-
+  selectedGame = null;
 }
-
 
