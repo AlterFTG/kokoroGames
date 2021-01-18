@@ -1,33 +1,25 @@
 import "./style.css"
 import gameRepository from "./repositories/gamesRepository";
-let globalGames;
 
 async function getGames() {
+  try {
+    //array of games
     const games = await gameRepository.get();
-    globalGames = games;
-    games.forEach(game => {
-        console.log(game.title);
-    })
+    showGames(games);
    
+  } catch (err) {
+    let errMsg = document.createElement("p");
+    errMsg.textContent = err;
+    document.body.appendChild(errMsg);
+  }
 }
 getGames();
 
-const requestURL = 'https://api-prod.kokorokids.app/games/';
+let globalGames;
 let selectedGame;
 
-const request = new XMLHttpRequest();
-request.open('GET', requestURL);
-request.responseType = 'json';
-request.send();
-
-request.onload = function () {
-  const games = request.response;
-  showGames(games);
-}
-
-function showGames(jsonObj) {
+function showGames(games) {
   //Creating JSON Object
-  const games = jsonObj['games'];
   globalGames = games;
 
   var container = document.createElement("div");
@@ -42,7 +34,7 @@ function showGames(jsonObj) {
     const myH2 = document.createElement('h2');
 
     myH2.textContent = game.title;
-    item.addEventListener("click", function() {
+    item.addEventListener("click", function () {
       selectedGame = game;
       showDetails();
     });
@@ -83,10 +75,10 @@ function showDetails() {
   listItem.textContent += "Categories: ";
 
   for (var j = 0; j < categories.length; j++) {
-      let string = categories[j].name;
-      string = string.replace('_',' ');
-    
-    listItem.textContent += "/"+string+"/ ";
+    let string = categories[j].name;
+    string = string.replace('_', ' ');
+
+    listItem.textContent += "/" + string + "/ ";
 
   }
   modal.appendChild(listItem);

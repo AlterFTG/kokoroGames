@@ -4,8 +4,12 @@ const resource = "/games/";
 
 export default {
     async get() {
+        try {
         const response = await apiService.get(`${resource}`);
         return response.data.games;
+    }catch(err){
+        console.log(err);
+    }
     },
 
 }
